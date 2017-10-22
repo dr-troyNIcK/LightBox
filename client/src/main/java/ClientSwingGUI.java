@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 public class ClientSwingGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler {
 
@@ -18,8 +15,8 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     private final JTextField fieldIP = new JTextField("127.0.0.1");
     private final JTextField fieldPort = new JTextField("8189");
     private final JPanel panelAuthorization = new JPanel(new GridLayout(1, 3));
-    private final JTextField fieldLogin = new JTextField("root");
-    private final JPasswordField fieldPassword = new JPasswordField("root");
+    private final JTextField fieldLogin = new JTextField("login1");
+    private final JPasswordField fieldPassword = new JPasswordField("pass1");
     private final JButton btnLogin = new JButton("Login");
 
     private final JPanel southPanel = new JPanel(new GridLayout(1, 3));

@@ -1,9 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
-public class ServerGUI extends JFrame implements ActionListener, ServerListener, Thread.UncaughtExceptionHandler {
+public class ServerSwingGUI extends JFrame implements ActionListener, ServerListener, Thread.UncaughtExceptionHandler {
 
     private static final int POS_X_FRAME = 50;
     private static final int POS_Y_FRAME = 50;
@@ -14,7 +13,7 @@ public class ServerGUI extends JFrame implements ActionListener, ServerListener,
     private static final String START_LISTENING = "Star listening";
     private static final String STOP_LISTENING = "Stop listening";
 
-    private final Server server = new Server(this);
+    private final Server server = new Server(this, new SQLAuthorizeManager());
 
     private final JPanel northPanel = new JPanel(new GridLayout(1, 2));
     private final JButton btnStartListening = new JButton(START_LISTENING);
@@ -22,7 +21,7 @@ public class ServerGUI extends JFrame implements ActionListener, ServerListener,
     private final JTextArea log = new JTextArea();
     private final JScrollPane scrollPane = new JScrollPane(log);
 
-    private ServerGUI() {
+    private ServerSwingGUI() {
         Thread.setDefaultUncaughtExceptionHandler(this);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBounds(POS_X_FRAME, POS_Y_FRAME, WIDTH_FRAME, HEIGHT_FRAME);
@@ -46,7 +45,7 @@ public class ServerGUI extends JFrame implements ActionListener, ServerListener,
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new ServerGUI();
+                new ServerSwingGUI();
             }
         });
     }

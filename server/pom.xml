@@ -20,7 +20,7 @@
                     <archive>
                         <manifest>
                             <mainClass>
-
+                                ServerSwingGUI
                             </mainClass>
                         </manifest>
                     </archive>

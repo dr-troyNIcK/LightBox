@@ -1,11 +1,15 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ClientSwingGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler {
 
-    private static final int POS_X_FRAME = 1200;
-    private static final int POS_Y_FRAME = 150;
+    private static final int POS_X_FRAME = 450;
+    private static final int POS_Y_FRAME = 50;
     private static final int WIDTH_FRAME = 400;
     private static final int HEIGHT_FRAME = 600;
     private static final String TITLE = "LightBox";
@@ -27,10 +31,12 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     private final JFileChooser addChooser = new JFileChooser();
     private final JFileChooser copyChooser = new JFileChooser();
 
-    private final JList<String> serverFilesList = new JList<>();
+    private final DefaultListModel<String> serverFilesListModel = new DefaultListModel<>();
+    private final JList<String> serverFilesList = new JList<>(serverFilesListModel);
     private final JScrollPane scrollPaneServerFilesList = new JScrollPane(serverFilesList);
 
-    private String[] list = {"fildddddddddddddddddddddddddddddddddddddddddddddddddddde.txt", "file.txt", "file.txt", "file.txt", "file.txt"};
+//    private String selectedFile;
+//    private int selectedFileIndex;
 
     private ClientSwingGUI() {
         Thread.setDefaultUncaughtExceptionHandler(this);
@@ -74,16 +80,29 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         btnDel.addActionListener(this);
         btnCopy.addActionListener(this);
 
-
         add(scrollPaneServerFilesList, BorderLayout.CENTER);
 
-        serverFilesList.setListData(list);
+        serverFilesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//        serverFilesList.addListSelectionListener(new ListSelectionListener() {
+//            @Override
+//            public void valueChanged(ListSelectionEvent e) {
+//                selectedFile = serverFilesList.getSelectedValue();
+//                selectedFileIndex = serverFilesList.getSelectedIndex();
+//                System.out.println(selectedFile + " || " + selectedFileIndex);
+//            }
+//        });
+
+        serverFilesListModel.addElement("file1.txt");
+        serverFilesListModel.addElement("file2.txt");
+        serverFilesListModel.addElement("file3.txt");
+        serverFilesListModel.addElement("file4.txt");
+        serverFilesListModel.addElement("file5.txt");
 
         setVisible(true);
 
     }
 
-
+    //ActionListener
     @Override
     public void actionPerformed(ActionEvent e) {
         Object object = e.getSource();
@@ -121,7 +140,8 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     }
 
     void delFile() {
-
+        //serverFilesListModel.remove(serverFilesList.getSelectedIndex());
+        serverFilesListModel.removeElement(serverFilesList.getSelectedValue());
     }
 
     void copyFile() {
@@ -129,6 +149,7 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         if (chooserAnswer == JFileChooser.APPROVE_OPTION) System.out.println("скопировать файл");
     }
 
+    //Thread.UncaughtExceptionHandler
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         e.printStackTrace();

@@ -6,8 +6,8 @@ public class ServerSwingGUI extends JFrame implements ActionListener, ServerList
 
     private static final int POS_X_FRAME = 50;
     private static final int POS_Y_FRAME = 50;
-    private static final int WIDTH_FRAME = 600;
-    private static final int HEIGHT_FRAME = 300;
+    private static final int WIDTH_FRAME = 400;
+    private static final int HEIGHT_FRAME = 600;
 
     private static final String TITLE = "Server";
     private static final String START_LISTENING = "Star listening";
@@ -50,6 +50,7 @@ public class ServerSwingGUI extends JFrame implements ActionListener, ServerList
         });
     }
 
+    //ActionListener
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -62,6 +63,7 @@ public class ServerSwingGUI extends JFrame implements ActionListener, ServerList
         }
     }
 
+    //ServerListener
     @Override
     public void onServerLog(String msg, Server server) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -73,6 +75,7 @@ public class ServerSwingGUI extends JFrame implements ActionListener, ServerList
         });
     }
 
+    //Thread.UncaughtExceptionHandler
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         e.printStackTrace();

@@ -3,10 +3,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ClientSwingGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler {
+public class ClientSwingGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler, SocketThreadListener {
 
     private static final int POS_X_FRAME = 450;
     private static final int POS_Y_FRAME = 50;
@@ -28,15 +31,23 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     private final JButton btnDel = new JButton("Del");
     private final JButton btnCopy = new JButton("Copy");
 
-    private final JFileChooser addChooser = new JFileChooser();
-    private final JFileChooser copyChooser = new JFileChooser();
+    private final JPanel centralPanel = new JPanel(new GridLayout(2, 1));
 
     private final DefaultListModel<String> serverFilesListModel = new DefaultListModel<>();
     private final JList<String> serverFilesList = new JList<>(serverFilesListModel);
     private final JScrollPane scrollPaneServerFilesList = new JScrollPane(serverFilesList);
 
+    private final JTextArea log = new JTextArea();
+    private final JScrollPane scrollPaneLog = new JScrollPane(log);
+
+    private final JFileChooser addChooser = new JFileChooser();
+    private final JFileChooser copyChooser = new JFileChooser();
+
+
 //    private String selectedFile;
 //    private int selectedFileIndex;
+
+    private SocketThread socketThread;
 
     private ClientSwingGUI() {
         Thread.setDefaultUncaughtExceptionHandler(this);
@@ -75,12 +86,18 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         southPanel.add(btnAdd, BorderLayout.WEST);
         southPanel.add(btnDel, BorderLayout.CENTER);
         southPanel.add(btnCopy, BorderLayout.EAST);
+        //southPanel.setVisible(false);
 
         btnAdd.addActionListener(this);
         btnDel.addActionListener(this);
         btnCopy.addActionListener(this);
 
-        add(scrollPaneServerFilesList, BorderLayout.CENTER);
+        add(centralPanel, BorderLayout.CENTER);
+        centralPanel.add(scrollPaneServerFilesList, BorderLayout.NORTH);
+        centralPanel.add(scrollPaneLog, BorderLayout.SOUTH);
+
+        log.setEditable(false);
+        log.setLineWrap(true);
 
         serverFilesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 //        serverFilesList.addListSelectionListener(new ListSelectionListener() {
@@ -127,6 +144,17 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     }
 
     void connect() {
+//        setTitle(fieldLogin.getText());
+//        northPanel.setVisible(false);
+//        southPanel.setVisible(true);
+        try {
+            Socket socket = new Socket(fieldIP.getText(), Integer.parseInt(fieldPort.getText()));
+            socketThread = new SocketThread(this, this.getClass().getName() + ": " + fieldLogin.getText(), socket);
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.append("Exception: " + e.getMessage() + "\n");
+            log.setCaretPosition(log.getDocument().getLength());
+        }
 
     }
 
@@ -137,16 +165,21 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     void addFile() {
         int chooserAnswer = addChooser.showDialog(this, "Add");
         if (chooserAnswer == JFileChooser.APPROVE_OPTION) System.out.println("добавить файл");
+        //отправляем объект через socket thread socketThread.sentObject(object);
     }
 
     void delFile() {
         //serverFilesListModel.remove(serverFilesList.getSelectedIndex());
-        serverFilesListModel.removeElement(serverFilesList.getSelectedValue());
+        //serverFilesListModel.removeElement(serverFilesList.getSelectedValue());
+        //отправляем объект через socket thread socketThread.sentObject(object);
+        String s = "sdasf";
+        socketThread.sentObject(s);
     }
 
     void copyFile() {
         int chooserAnswer = copyChooser.showDialog(this, "Copy");
         if (chooserAnswer == JFileChooser.APPROVE_OPTION) System.out.println("скопировать файл");
+        //отправляем объект через socket thread socketThread.sentObject(object);
     }
 
     //Thread.UncaughtExceptionHandler
@@ -161,4 +194,60 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         System.exit(1);
     }
 
+    //SocketThreadListener
+    @Override
+    public void onStartSocketThread(SocketThread socketThread) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                log.append("Socket started\n");
+                log.setCaretPosition(log.getDocument().getLength());
+            }
+        });
+    }
+
+    @Override
+    public void onStopSocketThread(SocketThread socketThread) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                log.append("Socket stopped\n");
+                log.setCaretPosition(log.getDocument().getLength());
+            }
+        });
+    }
+
+    @Override
+    public void onReadySocketThread(SocketThread socketThread, Socket socket) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                log.append("Socket is ready\n");
+                log.setCaretPosition(log.getDocument().getLength());
+            }
+        });
+    }
+
+    @Override
+    public void onReceiveObject(SocketThread socketThread, Socket socket, Object object) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                log.append(object + "\n");
+                log.setCaretPosition(log.getDocument().getLength());
+            }
+        });
+    }
+
+    @Override
+    public void onExceptionSocketThread(SocketThread socketThread, Socket socket, Exception e) {
+        e.printStackTrace();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                log.append("Exception: " + e.getMessage() + "\n");
+                log.setCaretPosition(log.getDocument().getLength());
+            }
+        });
+    }
 }

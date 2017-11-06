@@ -4,12 +4,15 @@ import java.awt.event.*;
 
 public class ServerSwingGUI extends JFrame implements ActionListener, ServerListener, Thread.UncaughtExceptionHandler {
 
+    private static final int PORT = 8189;
+    private static final int TIMEOUT = 60000;
+
     private static final int POS_X_FRAME = 50;
     private static final int POS_Y_FRAME = 50;
     private static final int WIDTH_FRAME = 400;
     private static final int HEIGHT_FRAME = 600;
 
-    private static final String TITLE = "Server";
+    private static final String TITLE = "ServerSwingGUI";
     private static final String START_LISTENING = "Star listening";
     private static final String STOP_LISTENING = "Stop listening";
 
@@ -34,6 +37,7 @@ public class ServerSwingGUI extends JFrame implements ActionListener, ServerList
         northPanel.add(btnStopListening);
 
         log.setEditable(false);
+        log.setLineWrap(true);
 
         btnStartListening.addActionListener(this);
         btnStopListening.addActionListener(this);
@@ -55,7 +59,7 @@ public class ServerSwingGUI extends JFrame implements ActionListener, ServerList
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source == btnStartListening) {
-            server.startListening(8189);
+            server.startListening(TITLE, PORT, TIMEOUT);
         } else if (source == btnStopListening) {
             server.stopListening();
         } else {

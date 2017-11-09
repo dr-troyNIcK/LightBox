@@ -7,8 +7,8 @@ public class SocketThread extends Thread {
 
     private final SocketThreadListener eventListener;
     private final Socket socket;
-    private ObjectInputStream objectInputStream;
     private ObjectOutputStream objectOutputStream;
+    private ObjectInputStream objectInputStream;
 
     public SocketThread(SocketThreadListener eventListener, String name, Socket socket) {
         super(name);
@@ -21,8 +21,9 @@ public class SocketThread extends Thread {
     public void run() {
         eventListener.onStartSocketThread(this);
         try {
-            objectInputStream = new ObjectInputStream(socket.getInputStream());
+            //если поменять местами следующие 2 строки, то objectInputStream не создастся
             objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectInputStream = new ObjectInputStream(socket.getInputStream());
             eventListener.onReadySocketThread(this, socket);
             while (!isInterrupted()) {
                 try {
@@ -46,8 +47,11 @@ public class SocketThread extends Thread {
     }
 
     //кидаемся сериализованными объектами
-    public synchronized void sentObject(Object object) {
+    public synchronized void sendObject(Object object) {
         try {
+//            System.out.println(object);
+//            System.out.println(socket);
+//            System.out.println(objectOutputStream);
             objectOutputStream.writeObject(object);
             objectOutputStream.flush();
         } catch (IOException e) {

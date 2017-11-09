@@ -96,7 +96,7 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
 
     @Override
     public synchronized void onReceiveObject(SocketThread socketThread, Socket socket, Object object) {
-        socketThread.sentObject(object);
+        socketThread.sendObject(object);
     }
 
     @Override

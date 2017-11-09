@@ -172,8 +172,9 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         //serverFilesListModel.remove(serverFilesList.getSelectedIndex());
         //serverFilesListModel.removeElement(serverFilesList.getSelectedValue());
         //отправляем объект через socket thread socketThread.sentObject(object);
-        String s = "sdasf";
-        socketThread.sentObject(s);
+        MessageClass messageClass = new MessageClass(2,"qwe");
+        messageClass.info();
+        socketThread.sendObject(messageClass);
     }
 
     void copyFile() {
@@ -233,7 +234,9 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                log.append(object + "\n");
+                MessageClass messageClass = (MessageClass) object;
+                messageClass.info();
+                log.append(messageClass + "\n");
                 log.setCaretPosition(log.getDocument().getLength());
             }
         });

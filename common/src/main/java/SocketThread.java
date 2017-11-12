@@ -46,12 +46,8 @@ public class SocketThread extends Thread {
         }
     }
 
-    //кидаемся сериализованными объектами
     public synchronized void sendObject(Object object) {
         try {
-//            System.out.println(object);
-//            System.out.println(socket);
-//            System.out.println(objectOutputStream);
             objectOutputStream.writeObject(object);
             objectOutputStream.flush();
         } catch (IOException e) {

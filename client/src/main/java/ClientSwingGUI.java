@@ -86,7 +86,7 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         southPanel.add(btnAdd, BorderLayout.WEST);
         southPanel.add(btnDel, BorderLayout.CENTER);
         southPanel.add(btnCopy, BorderLayout.EAST);
-        //southPanel.setVisible(false);
+        southPanel.setVisible(false);
 
         btnAdd.addActionListener(this);
         btnDel.addActionListener(this);
@@ -144,9 +144,6 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     }
 
     void connect() {
-//        setTitle(fieldLogin.getText());
-//        northPanel.setVisible(false);
-//        southPanel.setVisible(true);
         try {
             Socket socket = new Socket(fieldIP.getText(), Integer.parseInt(fieldPort.getText()));
             socketThread = new SocketThread(this, this.getClass().getName() + ": " + fieldLogin.getText(), socket);
@@ -159,7 +156,7 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     }
 
     void disconnect() {
-
+        socketThread.close();
     }
 
     void addFile() {
@@ -172,8 +169,7 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         //serverFilesListModel.remove(serverFilesList.getSelectedIndex());
         //serverFilesListModel.removeElement(serverFilesList.getSelectedValue());
         //отправляем объект через socket thread socketThread.sentObject(object);
-        MessageClass messageClass = new MessageClass(2,"qwe");
-        messageClass.info();
+        MessageClass messageClass = new MessageClass(2, "qwe");
         socketThread.sendObject(messageClass);
     }
 
@@ -214,6 +210,8 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
             public void run() {
                 log.append("Socket stopped\n");
                 log.setCaretPosition(log.getDocument().getLength());
+                northPanel.setVisible(true);
+                southPanel.setVisible(false);
             }
         });
     }
@@ -225,6 +223,9 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
             public void run() {
                 log.append("Socket is ready\n");
                 log.setCaretPosition(log.getDocument().getLength());
+                setTitle(fieldLogin.getText());
+                northPanel.setVisible(false);
+                southPanel.setVisible(true);
             }
         });
     }
@@ -234,9 +235,7 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                MessageClass messageClass = (MessageClass) object;
-                messageClass.info();
-                log.append(messageClass + "\n");
+                log.append(object + "\n");
                 log.setCaretPosition(log.getDocument().getLength());
             }
         });

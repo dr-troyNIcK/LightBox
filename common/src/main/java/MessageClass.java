@@ -10,8 +10,11 @@ public class MessageClass implements Serializable {
         this.string = string;
     }
 
-    public void info(){
-        System.out.println("number = " + number + " | string = " + string);
+    @Override
+    public String toString() {
+        return "MessageClass{" +
+                "number=" + number +
+                ", string='" + string + '\'' +
+                '}';
     }
-
 }

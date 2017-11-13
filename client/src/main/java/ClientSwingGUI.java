@@ -1,13 +1,8 @@
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ClientSwingGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler, SocketThreadListener {
 
@@ -169,8 +164,8 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         //serverFilesListModel.remove(serverFilesList.getSelectedIndex());
         //serverFilesListModel.removeElement(serverFilesList.getSelectedValue());
         //отправляем объект через socket thread socketThread.sentObject(object);
-        MessageClass messageClass = new MessageClass(2, "qwe");
-        socketThread.sendObject(messageClass);
+        //Object message = MessageObject.getAuthAccept("login1");
+        //socketThread.sendObject(message);
     }
 
     void copyFile() {
@@ -226,6 +221,10 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
                 setTitle(fieldLogin.getText());
                 northPanel.setVisible(false);
                 southPanel.setVisible(true);
+
+                String login = fieldLogin.getText();
+                String password = String.valueOf(fieldPassword.getPassword());
+                socketThread.sendObject(MessageObject.getAuthRequest(login, password));
             }
         });
     }

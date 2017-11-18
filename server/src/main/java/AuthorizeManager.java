@@ -1,5 +1,5 @@
 public interface AuthorizeManager {
     void connect();
     void disconnect();
-    boolean checkLogin(String login);
+    boolean checkLogin(String login, String password);
 }

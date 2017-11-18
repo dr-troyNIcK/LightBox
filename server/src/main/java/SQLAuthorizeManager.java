@@ -26,9 +26,9 @@ public class SQLAuthorizeManager implements AuthorizeManager {
     }
 
     @Override
-    public boolean checkLogin(String login) {
-        String request = "SELECT * FROM main WHERE Login = '" + login + "'";
-        try (ResultSet rs = statement.executeQuery(request)){
+    public boolean checkLogin(String login, String password) {
+        String request = "SELECT * from main WHERE login='" + login + "' AND pass='" + password + "'";
+        try (ResultSet rs = statement.executeQuery(request)) {
             return rs.next();
         } catch (SQLException e) {
             throw new RuntimeException(e);

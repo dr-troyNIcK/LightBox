@@ -27,8 +27,8 @@ public class SocketThread extends Thread {
             eventListener.onReadySocketThread(this, socket);
             while (!isInterrupted()) {
                 try {
-                    Object object = objectInputStream.readObject();
-                    eventListener.onReceiveObject(this, socket, object);
+                    MessageObject messageObject = (MessageObject) objectInputStream.readObject();
+                    eventListener.onReceiveMessageObject(this, socket, messageObject);
                 } catch (ClassNotFoundException e) {
                     eventListener.onExceptionSocketThread(this, socket, e);
                     continue;
@@ -46,9 +46,9 @@ public class SocketThread extends Thread {
         }
     }
 
-    public synchronized void sendObject(Object object) {
+    public synchronized void sendMessageObject(MessageObject messageObject) {
         try {
-            objectOutputStream.writeObject(object);
+            objectOutputStream.writeObject(messageObject);
             objectOutputStream.flush();
         } catch (IOException e) {
             eventListener.onExceptionSocketThread(this, socket, e);

@@ -164,7 +164,7 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         //serverFilesListModel.remove(serverFilesList.getSelectedIndex());
         //serverFilesListModel.removeElement(serverFilesList.getSelectedValue());
         //отправляем объект через socket thread socketThread.sentObject(object);
-        //Object message = MessageObject.getAuthAccept("login1");
+        //Object message = MessageObject.getAuthAnswer("login1");
         //socketThread.sendObject(message);
     }
 
@@ -224,17 +224,17 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
 
                 String login = fieldLogin.getText();
                 String password = String.valueOf(fieldPassword.getPassword());
-                socketThread.sendObject(MessageObject.getAuthRequest(login, password));
+                socketThread.sendMessageObject(MessageObject.getAuthRequest(login, password));
             }
         });
     }
 
     @Override
-    public void onReceiveObject(SocketThread socketThread, Socket socket, Object object) {
+    public void onReceiveMessageObject(SocketThread socketThread, Socket socket, MessageObject messageObject) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                log.append(object + "\n");
+                log.append(messageObject + "\n");
                 log.setCaretPosition(log.getDocument().getLength());
             }
         });

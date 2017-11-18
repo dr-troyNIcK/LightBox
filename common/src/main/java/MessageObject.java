@@ -1,36 +1,33 @@
 import java.io.Serializable;
 
-public class MessageObject {
-
-    private MessageObject() {
-    }
+abstract class MessageObject implements Serializable {
 
 //    auth_request
 //    auth_accept
 //    auth_error
+//    msg_format_error
 //    file
 //    delete_file
 //    file_list
-//    msg_format_error
 
-    public static AuthRequestObject getAuthRequest(String login, String password) {
+    static AuthRequestObject getAuthRequest(String login, String password) {
         return new AuthRequestObject(login, password);
     }
 
-    public static AuthAcceptObject getAuthAccept(String login) {
+    static AuthAcceptObject getAuthAccept(String login) {
         return new AuthAcceptObject(login);
     }
 
-    public static AuthErrorObject getAuthError(String authErrorMsg) {
-        return new AuthErrorObject(authErrorMsg);
+    static AuthErrorObject getAuthError(String login) {
+        return new AuthErrorObject(login);
     }
 
-    public static MsgFormatErrorObject getMsgFormatError(String value) {
-        return new MsgFormatErrorObject(value);
+    static MsgFormatErrorObject getMsgFormatError() {
+        return new MsgFormatErrorObject();
     }
 }
 
-class AuthRequestObject implements Serializable {
+class AuthRequestObject extends MessageObject {
 
     private String login;
     private String password;
@@ -39,31 +36,49 @@ class AuthRequestObject implements Serializable {
         this.login = login;
         this.password = password;
     }
+
+    String getLogin() {
+        return login;
+    }
+
+    String getPassword() {
+        return password;
+    }
 }
 
-class AuthAcceptObject implements Serializable {
+class AuthAcceptObject extends MessageObject {
 
     private String login;
 
-    AuthAcceptObject(String login) {
+    AuthAcceptObject(String login){
         this.login = login;
     }
+
+    @Override
+    public String toString() {
+        return "Client " + login + " connected";
+    }
+
 }
 
-class AuthErrorObject implements Serializable {
+class AuthErrorObject extends MessageObject {
 
-    private String authErrorMsg;
+    private String login;
 
-    AuthErrorObject(String authErrorMsg) {
-        this.authErrorMsg = authErrorMsg;
+    AuthErrorObject(String login){
+        this.login = login;
+    }
+
+    @Override
+    public String toString() {
+        return "Client " + login + " is not registered";
     }
 }
 
-class MsgFormatErrorObject implements Serializable {
+class MsgFormatErrorObject extends MessageObject {
 
-    private String value;
-
-    MsgFormatErrorObject(String value) {
-        this.value = value;
+    @Override
+    public String toString() {
+        return "Error object message format";
     }
 }

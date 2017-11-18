@@ -67,7 +67,7 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
     public void onAcceptedSocket(ServerSocketThread thread, ServerSocket serverSocket, Socket socket) {
         putLog("Client connected: " + socket);
         String threadName = "Socket thread: " + socket.getInetAddress() + ":" + socket.getPort();
-        new SocketThread(this, threadName, socket);
+        new ClientSocketThread(this, threadName, socket);
     }
 
     @Override
@@ -95,8 +95,33 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
     }
 
     @Override
-    public synchronized void onReceiveObject(SocketThread socketThread, Socket socket, Object object) {
-        socketThread.sendObject(object);
+    public synchronized void onReceiveMessageObject(SocketThread socketThread, Socket socket, MessageObject messageObject) {
+        ClientSocketThread clientSocketThread = (ClientSocketThread) socketThread;
+        if (clientSocketThread.isAuthorized()) {
+            handleAuthorizeClient(clientSocketThread, messageObject);
+        } else {
+            handleNonAuthorizeClient(clientSocketThread, messageObject);
+        }
+    }
+
+    private void handleAuthorizeClient(ClientSocketThread client, MessageObject messageObject) {
+
+    }
+
+    private void handleNonAuthorizeClient(ClientSocketThread client, MessageObject messageObject) {
+        putLog("auth msg: '" + messageObject + "'");
+        if (!(messageObject instanceof AuthRequestObject)) {
+            client.messageFormatError(messageObject);
+            return;
+        }
+        String login = ((AuthRequestObject) messageObject).getLogin();
+        String password = ((AuthRequestObject) messageObject).getPassword();
+        if (!authorizeManager.checkLogin(login, password)) {
+            client.authError(messageObject, login);
+            return;
+        }
+        client.authorizeAccept(messageObject, login);
+        putLog(login + " connected.");
     }
 
     @Override

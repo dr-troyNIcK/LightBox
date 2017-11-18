@@ -5,7 +5,7 @@ public interface SocketThreadListener {
     void onStopSocketThread(SocketThread socketThread);
 
     void onReadySocketThread(SocketThread socketThread, Socket socket);
-    void onReceiveObject(SocketThread socketThread, Socket socket, Object object);
+    void onReceiveMessageObject(SocketThread socketThread, Socket socket, MessageObject messageObject);
 
     void onExceptionSocketThread(SocketThread socketThread, Socket socket, Exception e);
 }

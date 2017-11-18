@@ -14,12 +14,12 @@ abstract class MessageObject implements Serializable {
         return new AuthRequestObject(login, password);
     }
 
-    static AuthAcceptObject getAuthAccept(String login) {
-        return new AuthAcceptObject(login);
+    static AuthAcceptObject getAuthAccept() {
+        return new AuthAcceptObject();
     }
 
-    static AuthErrorObject getAuthError(String login) {
-        return new AuthErrorObject(login);
+    static AuthErrorObject getAuthError() {
+        return new AuthErrorObject();
     }
 
     static MsgFormatErrorObject getMsgFormatError() {
@@ -48,30 +48,18 @@ class AuthRequestObject extends MessageObject {
 
 class AuthAcceptObject extends MessageObject {
 
-    private String login;
-
-    AuthAcceptObject(String login){
-        this.login = login;
-    }
-
     @Override
     public String toString() {
-        return "Client " + login + " connected";
+        return "Client is connected";
     }
 
 }
 
 class AuthErrorObject extends MessageObject {
 
-    private String login;
-
-    AuthErrorObject(String login){
-        this.login = login;
-    }
-
     @Override
     public String toString() {
-        return "Client " + login + " is not registered";
+        return "Client is not registered";
     }
 }
 

@@ -109,19 +109,20 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
     }
 
     private void handleNonAuthorizeClient(ClientSocketThread client, MessageObject messageObject) {
-        putLog("auth msg: '" + messageObject + "'");
         if (!(messageObject instanceof AuthRequestObject)) {
-            client.messageFormatError(messageObject);
+            client.messageFormatError();
+            putLog("Error object message format: " + messageObject);
             return;
         }
         String login = ((AuthRequestObject) messageObject).getLogin();
         String password = ((AuthRequestObject) messageObject).getPassword();
         if (!authorizeManager.checkLogin(login, password)) {
-            client.authError(messageObject, login);
+            client.authError();
+            putLog(login + "is not registered");
             return;
         }
-        client.authorizeAccept(messageObject, login);
-        putLog(login + " connected.");
+        client.authorizeAccept();
+        putLog(login + " authorized");
     }
 
     @Override

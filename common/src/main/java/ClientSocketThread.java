@@ -12,19 +12,19 @@ public class ClientSocketThread extends SocketThread {
         return isAuthorized;
     }
 
-    void messageFormatError(MessageObject messageObject){
-        sendMessageObject(messageObject.getMsgFormatError());
+    void messageFormatError(){
+        sendMessageObject(MessageObject.getMsgFormatError());
         close();
     }
 
-    void authError(MessageObject messageObject, String login) {
-        sendMessageObject(messageObject.getAuthError(login));
+    void authError() {
+        sendMessageObject(MessageObject.getAuthError());
         close();
     }
 
-    void authorizeAccept(MessageObject messageObject, String login) {
+    void authorizeAccept() {
         this.isAuthorized = true;
-        sendMessageObject(messageObject.getAuthAccept(login));
+        sendMessageObject(MessageObject.getAuthAccept());
     }
 
 }

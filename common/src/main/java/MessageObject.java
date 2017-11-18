@@ -26,7 +26,7 @@ abstract class MessageObject implements Serializable {
         return new MsgFormatErrorObject();
     }
 
-    static AddFileObject getAddFileObject(String fileName, int fileSize, byte ... file) {
+    static AddFileObject getAddFileObject(String fileName, long fileSize, byte ... file) {
         return new AddFileObject(fileName, fileSize, file);
     }
 }
@@ -84,10 +84,10 @@ class MsgFormatErrorObject extends MessageObject {
 class AddFileObject extends MessageObject {
 
     private String fileName;
-    private int fileSize;
+    private long fileSize;
     private byte[] file;
 
-    AddFileObject(String fileName, int fileSize, byte... file){
+    AddFileObject(String fileName, long fileSize, byte... file){
         this.fileName = fileName;
         this.fileSize = fileSize;
         this.file = file;
@@ -97,7 +97,7 @@ class AddFileObject extends MessageObject {
         return fileName;
     }
 
-    int getFileSize() {
+    long getFileSize() {
         return fileSize;
     }
 

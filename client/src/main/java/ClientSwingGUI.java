@@ -1,9 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Files;
 
 public class ClientSwingGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler, SocketThreadListener {
 
@@ -160,22 +161,22 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
 
     void addFile() {
         int chooserAnswer = addChooser.showDialog(this, "Add");
-        if (chooserAnswer == JFileChooser.APPROVE_OPTION) System.out.println("добавить файл");
-        //отправляем объект через socket thread socketThread.sentObject(object);
-        byte[] bytes = new byte[100];
-        try (FileInputStream fileInputStream = new FileInputStream("1.txt")){
-            int i;
-            int count = 0;
-            while (true) {
-                i = fileInputStream.read();
-                if (i == -1) break;
-                bytes[count++] = (byte) i;
+        if (chooserAnswer == JFileChooser.APPROVE_OPTION) {
+            File file = addChooser.getSelectedFile();
+            String fileName = file.getName();
+            long fileSize = file.length();
+            byte[] bytes = new byte[0];
+            try {
+                bytes = Files.readAllBytes(file.toPath());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            socketThread.sendMessageObject(MessageObject.getAddFileObject(fileName, fileSize, bytes));
         }
 
-        socketThread.sendMessageObject(MessageObject.getAddFileObject("1.txt", 12, bytes));
+
+
+
     }
 
     void delFile() {

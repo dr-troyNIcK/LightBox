@@ -111,13 +111,13 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
     private void handleAuthorizeClient(ClientSocketThread client, MessageObject messageObject) {
         if (messageObject instanceof AddFileObject) {
             String fileName = ((AddFileObject) messageObject).getFileName();
-            int fileSize = ((AddFileObject) messageObject).getFileSize();
+            long fileSize = ((AddFileObject) messageObject).getFileSize();
             byte[] file = ((AddFileObject) messageObject).getFile();
 
             File dir = new File(client.getLogin());
             dir.mkdir();
-            File serverFile = new File(dir, fileName);
-            try (FileOutputStream fileOutputStream = new FileOutputStream(serverFile)){
+            File fileForSave = new File(dir, fileName);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(fileForSave)){
                 fileOutputStream.write(file);
             } catch (IOException e) {
                 e.printStackTrace();

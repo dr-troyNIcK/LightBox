@@ -1,3 +1,6 @@
+import java.io.File;
+import java.io.IOException;
+import java.io.FileOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.DateFormat;
@@ -89,6 +92,7 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
 
     @Override
     public synchronized void onReadySocketThread(SocketThread socketThread, Socket socket) {
+        //добавить проверку на подключене под одним логином более одного клиента
         clients.add(socketThread);
         putLog("Socket is ready");
 
@@ -105,7 +109,20 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
     }
 
     private void handleAuthorizeClient(ClientSocketThread client, MessageObject messageObject) {
+        if (messageObject instanceof AddFileObject) {
+            String fileName = ((AddFileObject) messageObject).getFileName();
+            int fileSize = ((AddFileObject) messageObject).getFileSize();
+            byte[] file = ((AddFileObject) messageObject).getFile();
 
+            File dir = new File(client.getLogin());
+            dir.mkdir();
+            File serverFile = new File(dir, fileName);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(serverFile)){
+                fileOutputStream.write(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void handleNonAuthorizeClient(ClientSocketThread client, MessageObject messageObject) {
@@ -117,11 +134,12 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
         String login = ((AuthRequestObject) messageObject).getLogin();
         String password = ((AuthRequestObject) messageObject).getPassword();
         if (!authorizeManager.checkLogin(login, password)) {
-            client.authError();
-            putLog(login + "is not registered");
+            client.authError("Client is not registered");
+            putLog(login + " is not registered");
             return;
         }
         client.authorizeAccept();
+        client.setLogin(login);
         putLog(login + " authorized");
     }
 

@@ -18,12 +18,16 @@ abstract class MessageObject implements Serializable {
         return new AuthAcceptObject();
     }
 
-    static AuthErrorObject getAuthError() {
-        return new AuthErrorObject();
+    static AuthErrorObject getAuthError(String authError) {
+        return new AuthErrorObject(authError);
     }
 
     static MsgFormatErrorObject getMsgFormatError() {
         return new MsgFormatErrorObject();
+    }
+
+    static AddFileObject getAddFileObject(String fileName, int fileSize, byte ... file) {
+        return new AddFileObject(fileName, fileSize, file);
     }
 }
 
@@ -57,9 +61,15 @@ class AuthAcceptObject extends MessageObject {
 
 class AuthErrorObject extends MessageObject {
 
+    private String authError;
+
+    AuthErrorObject(String authError) {
+        this.authError = authError;
+    }
+
     @Override
     public String toString() {
-        return "Client is not registered";
+        return authError;
     }
 }
 
@@ -68,5 +78,30 @@ class MsgFormatErrorObject extends MessageObject {
     @Override
     public String toString() {
         return "Error object message format";
+    }
+}
+
+class AddFileObject extends MessageObject {
+
+    private String fileName;
+    private int fileSize;
+    private byte[] file;
+
+    AddFileObject(String fileName, int fileSize, byte... file){
+        this.fileName = fileName;
+        this.fileSize = fileSize;
+        this.file = file;
+    }
+
+    String getFileName() {
+        return fileName;
+    }
+
+    int getFileSize() {
+        return fileSize;
+    }
+
+    byte[] getFile() {
+        return file;
     }
 }

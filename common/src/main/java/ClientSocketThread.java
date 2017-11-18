@@ -1,10 +1,11 @@
 import java.net.Socket;
 
-public class ClientSocketThread extends SocketThread {
+class ClientSocketThread extends SocketThread {
 
     private boolean isAuthorized;
+    private String login;
 
-    public ClientSocketThread(SocketThreadListener eventListener, String name, Socket socket) {
+    ClientSocketThread(SocketThreadListener eventListener, String name, Socket socket) {
         super(eventListener, name, socket);
     }
 
@@ -12,13 +13,21 @@ public class ClientSocketThread extends SocketThread {
         return isAuthorized;
     }
 
+    String getLogin() {
+        return login;
+    }
+
+    void setLogin(String login) {
+        this.login = login;
+    }
+
     void messageFormatError(){
         sendMessageObject(MessageObject.getMsgFormatError());
         close();
     }
 
-    void authError() {
-        sendMessageObject(MessageObject.getAuthError());
+    void authError(String authError) {
+        sendMessageObject(MessageObject.getAuthError(authError));
         close();
     }
 

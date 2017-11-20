@@ -9,7 +9,7 @@ class ClientSocketThread extends SocketThread {
         super(eventListener, name, socket);
     }
 
-    boolean isAuthorized (){
+    boolean isAuthorized() {
         return isAuthorized;
     }
 
@@ -17,11 +17,7 @@ class ClientSocketThread extends SocketThread {
         return login;
     }
 
-    void setLogin(String login) {
-        this.login = login;
-    }
-
-    void messageFormatError(){
+    void messageFormatError() {
         sendMessageObject(MessageObject.getMsgFormatError());
         close();
     }
@@ -31,9 +27,14 @@ class ClientSocketThread extends SocketThread {
         close();
     }
 
-    void authorizeAccept() {
+    void authorizeAccept(String login) {
         this.isAuthorized = true;
+        this.login = login;
         sendMessageObject(MessageObject.getAuthAccept());
+    }
+
+    void filesList(String[] filesList) {
+        sendMessageObject(MessageObject.getFilesListObject(filesList));
     }
 
 }

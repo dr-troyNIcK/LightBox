@@ -1,7 +1,10 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -30,8 +33,7 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
 
     private final JPanel centralPanel = new JPanel(new GridLayout(2, 1));
 
-    private final DefaultListModel<String> serverFilesListModel = new DefaultListModel<>();
-    private final JList<String> serverFilesList = new JList<>(serverFilesListModel);
+    private final JList<String> serverFilesList = new JList<>();
     private final JScrollPane scrollPaneServerFilesList = new JScrollPane(serverFilesList);
 
     private final JTextArea log = new JTextArea();
@@ -40,9 +42,8 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
     private final JFileChooser addChooser = new JFileChooser();
     private final JFileChooser copyChooser = new JFileChooser();
 
-
-//    private String selectedFile;
-//    private int selectedFileIndex;
+    private String selectedFile;
+    private String pathDirForSave;
 
     private SocketThread socketThread;
 
@@ -99,20 +100,14 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
         log.setLineWrap(true);
 
         serverFilesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//        serverFilesList.addListSelectionListener(new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent e) {
-//                selectedFile = serverFilesList.getSelectedValue();
-//                selectedFileIndex = serverFilesList.getSelectedIndex();
-//                System.out.println(selectedFile + " || " + selectedFileIndex);
-//            }
-//        });
+        serverFilesList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                selectedFile = serverFilesList.getSelectedValue();
+            }
+        });
 
-        serverFilesListModel.addElement("file1.txt");
-        serverFilesListModel.addElement("file2.txt");
-        serverFilesListModel.addElement("file3.txt");
-        serverFilesListModel.addElement("file4.txt");
-        serverFilesListModel.addElement("file5.txt");
+        copyChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         setVisible(true);
 
@@ -171,26 +166,25 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            socketThread.sendMessageObject(MessageObject.getAddFileObject(fileName, fileSize, bytes));
+            socketThread.sendMessageObject(MessageObject.getFileAddObject(fileName, fileSize, bytes));
         }
-
-
 
 
     }
 
     void delFile() {
-        //serverFilesListModel.remove(serverFilesList.getSelectedIndex());
-        //serverFilesListModel.removeElement(serverFilesList.getSelectedValue());
-        //отправляем объект через socket thread socketThread.sentObject(object);
-        //Object message = MessageObject.getAuthAnswer("login1");
-        //socketThread.sendObject(message);
+        if (selectedFile == null) return;
+        socketThread.sendMessageObject(MessageObject.getFileDeleteObject(selectedFile));
     }
 
     void copyFile() {
-        int chooserAnswer = copyChooser.showDialog(this, "Copy");
-        if (chooserAnswer == JFileChooser.APPROVE_OPTION) System.out.println("скопировать файл");
-        //отправляем объект через socket thread socketThread.sentObject(object);
+        if (selectedFile == null) return;
+        int chooserAnswer = copyChooser.showSaveDialog(this);
+        if (chooserAnswer == JFileChooser.APPROVE_OPTION) {
+            File dirForSave = copyChooser.getSelectedFile();
+            pathDirForSave = dirForSave.getPath();
+            socketThread.sendMessageObject(MessageObject.getFileCopyObject(selectedFile));
+        }
     }
 
     //Thread.UncaughtExceptionHandler
@@ -224,6 +218,7 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
             public void run() {
                 log.append("Socket stopped\n");
                 log.setCaretPosition(log.getDocument().getLength());
+                setTitle(TITLE);
                 northPanel.setVisible(true);
                 southPanel.setVisible(false);
             }
@@ -255,6 +250,21 @@ public class ClientSwingGUI extends JFrame implements ActionListener, Thread.Unc
             public void run() {
                 log.append(messageObject + "\n");
                 log.setCaretPosition(log.getDocument().getLength());
+                if (messageObject instanceof FilesListObject) {
+                    serverFilesList.setListData(((FilesListObject) messageObject).getFilesList());
+                }
+                if (messageObject instanceof FileAddObject) {
+                    String fileName = ((FileAddObject) messageObject).getFileName();
+                    long fileSize = ((FileAddObject) messageObject).getFileSize();
+                    byte[] file = ((FileAddObject) messageObject).getFile();
+
+                    File fileForSave = new File(pathDirForSave, fileName);
+                    try (FileOutputStream fileOutputStream = new FileOutputStream(fileForSave)) {
+                        fileOutputStream.write(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }

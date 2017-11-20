@@ -6,7 +6,8 @@ abstract class MessageObject implements Serializable {
 //    auth_accept
 //    auth_error
 //    msg_format_error
-//    file
+//    add_file
+//    copy_file
 //    delete_file
 //    file_list
 
@@ -26,9 +27,22 @@ abstract class MessageObject implements Serializable {
         return new MsgFormatErrorObject();
     }
 
-    static AddFileObject getAddFileObject(String fileName, long fileSize, byte ... file) {
-        return new AddFileObject(fileName, fileSize, file);
+    static FileAddObject getFileAddObject(String fileName, long fileSize, byte... file) {
+        return new FileAddObject(fileName, fileSize, file);
     }
+
+    static FilesListObject getFilesListObject(String[] filesList) {
+        return new FilesListObject(filesList);
+    }
+
+    static FileDeleteObject getFileDeleteObject (String fileName){
+        return new FileDeleteObject(fileName);
+    }
+
+    static  FileCopyObject getFileCopyObject (String fileName){
+        return new  FileCopyObject(fileName);
+    }
+
 }
 
 class AuthRequestObject extends MessageObject {
@@ -81,13 +95,13 @@ class MsgFormatErrorObject extends MessageObject {
     }
 }
 
-class AddFileObject extends MessageObject {
+class FileAddObject extends MessageObject {
 
     private String fileName;
     private long fileSize;
     private byte[] file;
 
-    AddFileObject(String fileName, long fileSize, byte... file){
+    FileAddObject(String fileName, long fileSize, byte... file) {
         this.fileName = fileName;
         this.fileSize = fileSize;
         this.file = file;
@@ -103,5 +117,44 @@ class AddFileObject extends MessageObject {
 
     byte[] getFile() {
         return file;
+    }
+}
+
+class FilesListObject extends MessageObject {
+
+    private String[] filesList;
+
+    FilesListObject(String[] filesList){
+        this.filesList = filesList;
+    }
+
+    String[] getFilesList() {
+        return filesList;
+    }
+}
+
+class FileDeleteObject extends MessageObject{
+
+    private  String fileName;
+
+    FileDeleteObject(String fileName){
+        this.fileName = fileName;
+    }
+
+    String getFileName() {
+        return fileName;
+    }
+}
+
+class FileCopyObject extends  MessageObject{
+
+    private  String fileName;
+
+    FileCopyObject(String fileName){
+        this.fileName = fileName;
+    }
+
+    String getFileName() {
+        return fileName;
     }
 }

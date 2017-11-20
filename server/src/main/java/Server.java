@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Vector;
@@ -109,20 +110,45 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
     }
 
     private void handleAuthorizeClient(ClientSocketThread client, MessageObject messageObject) {
-        if (messageObject instanceof AddFileObject) {
-            String fileName = ((AddFileObject) messageObject).getFileName();
-            long fileSize = ((AddFileObject) messageObject).getFileSize();
-            byte[] file = ((AddFileObject) messageObject).getFile();
+        if (messageObject instanceof FileAddObject) {
+            String fileName = ((FileAddObject) messageObject).getFileName();
+            long fileSize = ((FileAddObject) messageObject).getFileSize();
+            byte[] file = ((FileAddObject) messageObject).getFile();
 
             File dir = new File(client.getLogin());
             dir.mkdir();
             File fileForSave = new File(dir, fileName);
-            try (FileOutputStream fileOutputStream = new FileOutputStream(fileForSave)){
+            try (FileOutputStream fileOutputStream = new FileOutputStream(fileForSave)) {
                 fileOutputStream.write(file);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        if (messageObject instanceof FileDeleteObject) {
+            String fileName = ((FileDeleteObject) messageObject).getFileName();
+            File file = new File(client.getLogin(), fileName);
+            System.out.println(file.delete());
+        }
+        if (messageObject instanceof FileCopyObject) {
+            String fileName = ((FileCopyObject) messageObject).getFileName();
+            File file = new File(client.getLogin(), fileName);
+            long fileSize = file.length();
+            byte[] bytes = new byte[0];
+            try {
+                bytes = Files.readAllBytes(file.toPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            client.sendMessageObject(MessageObject.getFileAddObject(fileName, fileSize, bytes));
+        }
+        sendFileListToClient(client);
+    }
+
+    private void sendFileListToClient(ClientSocketThread client) {
+        String clientRepositoryName = client.getLogin();
+        File dir = new File(clientRepositoryName);
+        String[] filesList = dir.list();
+        client.filesList(filesList);
     }
 
     private void handleNonAuthorizeClient(ClientSocketThread client, MessageObject messageObject) {
@@ -138,8 +164,7 @@ public class Server implements ServerSocketThreadListener, SocketThreadListener 
             putLog(login + " is not registered");
             return;
         }
-        client.authorizeAccept();
-        client.setLogin(login);
+        client.authorizeAccept(login);
         putLog(login + " authorized");
     }
 
